@@ -6,7 +6,7 @@ export const storage = {
       localStorage.setItem("token", token);
       document.cookie = `token=${token}; path=/; max-age=${
         7 * 24 * 60 * 60
-      }; SameSite=strict`;
+      }; SameSite=strict; Secure=${location.protocol === "https:"}`;
     }
   },
 
@@ -37,7 +37,6 @@ export const storage = {
       localStorage.removeItem("user");
       document.cookie =
         "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-
     }
   },
 
@@ -48,8 +47,15 @@ export const storage = {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const exp = payload.exp * 1000;
-      return Date.now() < exp;
+      const isValid = Date.now() < exp;
+
+      if (!isValid) {
+        storage.clearStorage();
+      }
+
+      return isValid;
     } catch {
+      storage.clearStorage();
       return false;
     }
   },

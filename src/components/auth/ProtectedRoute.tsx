@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../lib/hooks/redux';
 import { initializeAuth } from '../../lib/redux/slices/authSlice';
@@ -10,25 +10,33 @@ interface ProtectedRouteProps {
   requireAuth?: boolean;
 }
 
-export default function ProtectedRoute({ 
-  children, 
-  requireAuth = true 
+export default function ProtectedRoute({
+  children,
+  requireAuth = true
 }: ProtectedRouteProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isAuthenticated, isLoading, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    dispatch(initializeAuth());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (!isLoading && requireAuth && !isAuthenticated) {
-      router.push('/login');
+    const initAuth = async () => {
+      await dispatch(initializeAuth());
+      setIsInitialized(true);
+    };
+    
+    if (!isInitialized) {
+      initAuth();
     }
-  }, [isLoading, isAuthenticated, requireAuth, router]);
+  }, [dispatch, isInitialized]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (isInitialized && !isLoading && requireAuth && !isAuthenticated) {
+      router.push('/');
+    }
+  }, [isInitialized, isLoading, isAuthenticated, requireAuth, router]);
+
+  if (!isInitialized || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>

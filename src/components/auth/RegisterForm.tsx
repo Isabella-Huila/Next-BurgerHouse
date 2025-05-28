@@ -4,15 +4,16 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '../../lib/hooks/redux';
-import { loginUser, clearError } from '../../lib/redux/slices/authSlice';
-import { LoginDto } from '../../lib/types/auth.types';
+import { registerUser, clearError } from '../../lib/redux/slices/authSlice';
+import { RegisterDto } from '../../lib/types/auth.types';
 import Alert from '../ui/Alert';
 import Input from '../ui/Input';
 
-export default function LoginForm() {
-  const [formData, setFormData] = useState<LoginDto>({
+export default function RegisterForm() {
+  const [formData, setFormData] = useState<RegisterDto>({
     email: '',
     password: '',
+    fullName: '',
   });
   const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
 
@@ -26,28 +27,43 @@ export default function LoginForm() {
     }
   }, [isAuthenticated, router]);
 
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!formData.fullName.trim()) {
+      errors.fullName = 'El nombre completo es requerido';
+    }
+    
+    if (!formData.email) {
+      errors.email = 'El correo electrónico es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'El correo electrónico no es válido';
+    }
+    
+    if (!formData.password) {
+      errors.password = 'La contraseña es requerida';
+    } else if (formData.password.length < 6) {
+      errors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+
+    return errors;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     dispatch(clearError());
     setFieldErrors({});
 
-    const errors: {[key: string]: string} = {};
-    if (!formData.email) {
-      errors.email = 'El correo electrónico es requerido';
-    }
-    if (!formData.password) {
-      errors.password = 'La contraseña es requerida';
-    }
-
+    const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       return;
     }
 
     try {
-      await dispatch(loginUser(formData)).unwrap();
+      await dispatch(registerUser(formData)).unwrap();
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Registration failed:', error);
     }
   };
 
@@ -71,7 +87,7 @@ export default function LoginForm() {
     <div className="flex items-center justify-center">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8">Ingresar</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-8">Registro</h1>
         </div>
         <form className="space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -80,6 +96,15 @@ export default function LoginForm() {
             </Alert>
           )}
           <div className="space-y-4">
+            <Input
+              label="NOMBRE COMPLETO"
+              name="fullName"
+              type="text"
+              placeholder="Tu nombre completo"
+              value={formData.fullName}
+              onChange={handleChange}
+              error={fieldErrors.fullName}
+            />
             <Input
               label="CORREO ELECTRÓNICO"
               name="email"
@@ -104,23 +129,15 @@ export default function LoginForm() {
             disabled={isLoading}
             className="w-full text-white py-3 px-4 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff914d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors bg-black hover:bg-[#1f1f1f]"
           >
-            {isLoading ? 'INGRESANDO...' : 'INGRESAR'}
+            {isLoading ? 'REGISTRANDO...' : 'CREAR CUENTA'}
           </button>
-          <div className="text-center">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-gray-600 hover:text-[#ff914d] transition-colors underline"
-            >
-              OLVIDÉ MI CLAVE
-            </Link>
-          </div>
         </form>
         <div className="border-t border-gray-200 pt-6">
           <div className="text-center space-y-4">
-            <p className="text-gray-600">¿Aún no tienes cuenta?</p>
-            <Link href="/register">
+            <p className="text-gray-600">¿Ya tienes una cuenta?</p>
+            <Link href="/login">
               <button className="bg-white border border-gray-300 text-gray-900 py-3 px-8 rounded-lg font-medium hover:bg-gray-50 hover:border-[#ff914d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff914d] transition-colors">
-                REGISTRO
+                INGRESAR
               </button>
             </Link>
           </div>
