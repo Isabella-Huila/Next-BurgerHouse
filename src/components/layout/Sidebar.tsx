@@ -1,7 +1,7 @@
 'use client';
 
 import NavItem from './NavItem';
-import { ShoppingCart, User, Users } from 'lucide-react';
+import { ShoppingCart, User, Users, Cookie } from 'lucide-react';
 import { useAppSelector } from '../../lib/hooks/redux';
 import { useAdmin } from '../../lib/hooks/useAdmin';
 
@@ -29,14 +29,24 @@ export default function Sidebar() {
           {isAuthenticated ? (
             <>
               {isAdmin && (
-                <a 
-                  href="/users" 
-                  className="flex items-center gap-1 text-gray-700 hover:text-[#ff914d] transition-colors"
-                  title="Gestión de usuarios"
-                >
-                  <Users className="w-5 h-5" />
-                  <span className="text-sm font-medium">ADMIN</span>
-                </a>
+                <>
+                  <a 
+                    href="/users" 
+                    className="flex items-center gap-1 text-gray-700 hover:text-[#ff914d] transition-colors"
+                    title="Gestión de usuarios"
+                  >
+                    <Users className="w-5 h-5" />
+                    <span className="text-sm font-medium">USUARIOS</span>
+                  </a>
+                  <a 
+                    href="/toppings" 
+                    className="flex items-center gap-1 text-gray-700 hover:text-[#ff914d] transition-colors"
+                    title="Gestión de toppings"
+                  >
+                    <Cookie className="w-5 h-5" />
+                    <span className="text-sm font-medium">TOPPINGS</span>
+                  </a>
+                </>
               )}
               <a href="/profile" className="text-gray-700 hover:text-[#ff914d] transition-colors">
                 <User className="w-5 h-5" />
