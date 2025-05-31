@@ -21,11 +21,7 @@ export default function Sidebar() {
         </div>
 
         <nav className="hidden md:flex items-center space-x-8 pr-2">
-          <NavItem href="#">MENU</NavItem>
-          <button className="flex items-center gap-2 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-[#ff914d] hover:bg-[#e67b36]">
-            PEDIR
-          </button>
-          
+          <NavItem href="/menu">MENU</NavItem>          
           {isAuthenticated ? (
             <>
               {isAdmin && (

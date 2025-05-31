@@ -106,14 +106,6 @@ export default function LoginForm() {
           >
             {isLoading ? 'INGRESANDO...' : 'INGRESAR'}
           </button>
-          <div className="text-center">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-gray-600 hover:text-[#ff914d] transition-colors underline"
-            >
-              OLVIDÉ MI CLAVE
-            </Link>
-          </div>
         </form>
         <div className="border-t border-gray-200 pt-6">
           <div className="text-center space-y-4">

@@ -173,7 +173,6 @@ const authSlice = createSlice({
           state.token = action.payload.token;
           state.isAuthenticated = true;
         } else {
-          // No hay usuario autenticado
           state.user = null;
           state.token = null;
           state.isAuthenticated = false;
