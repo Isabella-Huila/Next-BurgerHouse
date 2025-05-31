@@ -1,11 +1,13 @@
 'use client';
 
 import NavItem from './NavItem';
-import { ShoppingCart, User  } from 'lucide-react';
+import { ShoppingCart, User, Users } from 'lucide-react';
 import { useAppSelector } from '../../lib/hooks/redux';
+import { useAdmin } from '../../lib/hooks/useAdmin';
 
 export default function Sidebar() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAdmin } = useAdmin();
 
   return (
     <header className="bg-white relative">
@@ -13,7 +15,7 @@ export default function Sidebar() {
         <div className="flex items-center pl-2">
           <a href="/">
             <span className="text-xl font-bold text-gray-900">
-              Burger<span className="text-[#ff914d]"> House </span> 
+              Burger<span className="text-[#ff914d]"> House </span>
             </span>
           </a>
         </div>
@@ -23,15 +25,27 @@ export default function Sidebar() {
           <button className="flex items-center gap-2 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-[#ff914d] hover:bg-[#e67b36]">
             PEDIR
           </button>
+          
           {isAuthenticated ? (
             <>
+              {isAdmin && (
+                <a 
+                  href="/users" 
+                  className="flex items-center gap-1 text-gray-700 hover:text-[#ff914d] transition-colors"
+                  title="Gestión de usuarios"
+                >
+                  <Users className="w-5 h-5" />
+                  <span className="text-sm font-medium">ADMIN</span>
+                </a>
+              )}
               <a href="/profile" className="text-gray-700 hover:text-[#ff914d] transition-colors">
-                    <User className="w-5 h-5" />
+                <User className="w-5 h-5" />
               </a>
             </>
           ) : (
             <NavItem href="/login">LOGIN</NavItem>          
           )}
+          
           <a href="/cart" className="text-gray-700 hover:text-[#ff914d] transition-colors">
             <ShoppingCart className="w-5 h-5" />
           </a>
@@ -41,4 +55,3 @@ export default function Sidebar() {
     </header>
   );
 }
-

@@ -12,7 +12,7 @@ import { storage } from "../../utils/storage";
 const initialState: AuthState = {
   user: null,
   token: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
   isAuthenticated: false,
 };
@@ -25,8 +25,14 @@ export const loginUser = createAsyncThunk<
   try {
     const response = await authApi.login(loginData);
     storage.setToken(response.token);
-    storage.setUser(response.user);
-    return response;
+    try {
+      const fullProfile = await authApi.getProfile();
+      storage.setUser(fullProfile);
+      return { ...response, user: fullProfile };
+    } catch {
+      storage.setUser(response.user);
+      return response;
+    }
   } catch (error) {
     return rejectWithValue(
       error instanceof Error ? error.message : "Login failed"
@@ -79,6 +85,7 @@ export const initializeAuth = createAsyncThunk<
     } else if (token) {
       try {
         const user = await authApi.getProfile();
+        storage.setUser(user);
         return { user, token };
       } catch {
         storage.clearStorage();
@@ -99,6 +106,7 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.isLoading = false;
     },
     clearError: (state) => {
       state.error = null;
@@ -154,12 +162,28 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload || "Failed to get profile";
       })
+      // Casos para initializeAuth
+      .addCase(initializeAuth.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
         if (action.payload) {
           state.user = action.payload.user;
           state.token = action.payload.token;
           state.isAuthenticated = true;
+        } else {
+          // No hay usuario autenticado
+          state.user = null;
+          state.token = null;
+          state.isAuthenticated = false;
         }
+      })
+      .addCase(initializeAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
       });
   },
 });

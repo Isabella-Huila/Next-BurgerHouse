@@ -1,6 +1,7 @@
 import '../globals.css';
 import { ReduxProvider } from '../lib/redux/providers/ReduxProvider';
 import Sidebar from '../components/layout/Sidebar';
+import AuthInitializer from '@/components/auth/AuthInitializer';
 
 export const metadata = {
   title: 'Burger House',
@@ -16,14 +17,14 @@ export default function RootLayout({
     <html lang="es">
       <body className="min-h-screen">
         <ReduxProvider>
-          <Sidebar />
-          <main className="pt-20 px-4 sm:px-6 lg:px-8">
-            {children}
-          </main>
+          <AuthInitializer>
+            <Sidebar />
+            <main className="pt-20 px-4 sm:px-6 lg:px-8">
+              {children}
+            </main>
+          </AuthInitializer>
         </ReduxProvider>
       </body>
     </html>
   );
 }
-
-

@@ -44,6 +44,8 @@ export default function RegisterForm() {
       errors.password = 'La contraseña es requerida';
     } else if (formData.password.length < 6) {
       errors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }else if (formData.password && !/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/.test(formData.password)) {
+      errors.password = 'La contraseña debe contener al menos una mayúscula, una minúscula y un número';
     }
 
     return errors;
