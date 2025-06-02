@@ -23,13 +23,13 @@ export default function Sidebar() {
       roles: ['customer', 'admin', 'delivery'],
       component: 'Link'
     },
-    {
-      href: '/dashboard',
-      icon: <Home className="w-5 h-5" />,
-      label: 'DASHBOARD',
-      roles: ['customer', 'admin', 'delivery'],
-      component: 'Link'
-    },
+    // {
+    //   href: '/dashboard',
+    //   icon: <Home className="w-5 h-5" />,
+    //   label: 'DASHBOARD',
+    //   roles: ['customer', 'admin', 'delivery'],
+    //   component: 'Link'
+    // },
     {
       href: '/users',
       icon: <Users className="w-5 h-5" />,

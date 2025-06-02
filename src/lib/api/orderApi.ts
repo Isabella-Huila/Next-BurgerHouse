@@ -4,11 +4,6 @@ import { Order, PaginatedResponse } from "../types/order.types";
 import { storage } from "../utils/storage";
 
 
-interface PaginationDto {
-    limit?: number;
-    offset?: number;
-}
-
 class OrderApi {
     private async request<T>(
         endpoint: string,
@@ -50,6 +45,26 @@ class OrderApi {
             `/orders/user?limit=${limit}&offset=${offset}`,
             {
                 method: "GET",
+            }
+        );
+        return response;
+    }
+
+    async updateOrderToNextStatus(orderId: string): Promise<Order> {
+        const response = await this.request<Order>(
+            `/orders/${orderId}`,
+            {
+                method: "PATCH",
+            }
+        );
+        return response;
+    }
+
+    async cancelOrder(orderId: string): Promise<Order> {
+        const response = await this.request<Order>(
+            `/orders/${orderId}`,
+            {
+                method: "DELETE",
             }
         );
         return response;

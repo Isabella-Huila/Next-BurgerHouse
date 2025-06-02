@@ -1,6 +1,7 @@
 "use client";
 import { order } from '@/lib/api/orderApi'
-import { Order } from '@/lib/types/order.types'
+import { useUserRoles } from '@/lib/hooks/useUserRoles';
+import { Order, OrderState } from '@/lib/types/order.types'
 import { Product } from '@/lib/types/product.types'
 import { formatDate } from '@/lib/utils/date';
 import { getOrderStateColor } from '@/lib/utils/order'
@@ -12,14 +13,18 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [limit] = useState(5) // Number of orders per page
+  const [limit] = useState(5)
+  const [processingOrder, setProcessingOrder] = useState<string | null>(null)
+
+  const { hasAnyRole } = useUserRoles();
+  const canCancelOrders = hasAnyRole(['customer']);
+  const canUpdateOrders = hasAnyRole(['admin', 'delivery']);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setLoading(true)
         const ordersData = await order.getOrders(limit, currentPage)
-        // Ensure prices are numbers
         const processedOrders = ordersData.data.map(order => ({
           ...order,
           products: order.products.map(product => ({
@@ -50,6 +55,55 @@ export default function OrdersPage() {
     }
   }
 
+  const handleUpdateStatus = async (orderId: string) => {
+    try {
+      setProcessingOrder(orderId)
+      const updatedOrder = await order.updateOrderToNextStatus(orderId)
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId ? updatedOrder : order
+        )
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update order status')
+    } finally {
+      setProcessingOrder(null)
+    }
+  }
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!orderId) return
+
+    try {
+      setProcessingOrder(orderId)
+      const cancelledOrder = await order.cancelOrder(orderId)
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === orderId ? {
+            ...cancelledOrder,
+            // Ensure all required fields exist in the cancelled order
+            id: cancelledOrder.id || orderId,
+            date: cancelledOrder.date || order.date,
+            address: cancelledOrder.address || order.address,
+            state: cancelledOrder.state || OrderState.Cancelled,
+            total: cancelledOrder.total || order.total,
+            products: cancelledOrder.products || order.products
+          } : order
+        )
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to cancel order')
+    } finally {
+      setProcessingOrder(null)
+    }
+  }
+
+  const canCancel = (orderState: OrderState) => {
+    return orderState !== OrderState.OnTheWay &&
+      orderState !== OrderState.Delivered &&
+      orderState !== OrderState.Cancelled
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -78,7 +132,7 @@ export default function OrdersPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Mis órdenes</h1>
-      
+
       {orders.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-6 text-center">
           <p className="text-gray-600">No tienes órdenes aún.</p>
@@ -91,7 +145,7 @@ export default function OrdersPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-800">
-                      Orden #{order.id.slice(0, 8)}
+                      Orden #{order.id ? order.id.slice(0, 8) : 'N/A'}
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">
                       {formatDate(order.date)}
@@ -117,8 +171,8 @@ export default function OrdersPage() {
                       <div key={product.id} className="py-3 flex justify-between">
                         <div className="flex items-center">
                           {product.imageUrl && (
-                            <img 
-                              src={product.imageUrl} 
+                            <img
+                              src={product.imageUrl}
                               alt={product.name}
                               className="w-16 h-16 object-cover rounded-md mr-4"
                             />
@@ -136,10 +190,32 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
+                <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
                   <p className="text-lg font-semibold text-gray-800">
                     Total: ${formatPrice(order.total)}
                   </p>
+
+                  <div className="flex space-x-2">
+                    {canCancelOrders && canCancel(order.state) && (
+                      <button
+                        onClick={() => handleCancelOrder(order.id)}
+                        disabled={processingOrder === order.id}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:bg-red-300"
+                      >
+                        {processingOrder === order.id ? 'Procesando...' : 'Cancelar'}
+                      </button>
+                    )}
+
+                    {canUpdateOrders && order.state !== OrderState.Delivered && order.state !== OrderState.Cancelled && (
+                      <button
+                        onClick={() => handleUpdateStatus(order.id)}
+                        disabled={processingOrder === order.id}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:bg-orange-300"
+                      >
+                        {processingOrder === order.id ? 'Procesando...' : 'Actualizar Estado'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -155,7 +231,7 @@ export default function OrdersPage() {
               >
                 Anterior
               </button>
-              
+
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                 <button
                   key={page}
@@ -165,7 +241,7 @@ export default function OrdersPage() {
                   {page}
                 </button>
               ))}
-              
+
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
