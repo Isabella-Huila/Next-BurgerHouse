@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from '../../lib/hooks/redux';
 import { useAdmin } from '../../lib/hooks/useAdmin';
 import { Product, ProductCategories } from '../../lib/types/product.types';
 import { Plus } from 'lucide-react';
-
+import { addItem } from '../../lib/redux/slices/cartSlice';
 import Modal from '../ui/Modal';
 import Alert from '../ui/Alert';
 import { clearError, deleteProduct, fetchProducts } from '../../lib/redux/slices/productSlice';
@@ -62,8 +62,9 @@ export default function MenuPage() {
       alert('Debes iniciar sesión para agregar productos al carrito');
       return;
     }
-    // Lógica del carrito
-    console.log('Agregando al carrito:', product);
+    dispatch(addItem(product));
+    setSuccessMessage(`${product.name} agregado al carrito`);
+    setTimeout(() => setSuccessMessage(null), 3000);
   };
 
   const handleEditProduct = (product: Product) => {
@@ -135,11 +136,10 @@ export default function MenuPage() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category as ProductCategories)}
-                className={`flex flex-col items-center min-w-[120px] px-4 py-3 rounded-lg transition-colors ${
-                  selectedCategory === category
+                className={`flex flex-col items-center min-w-[120px] px-4 py-3 rounded-lg transition-colors ${selectedCategory === category
                     ? 'bg-[#ff914d] text-white'
                     : 'text-gray-600 hover:text-[#ff914d] hover:bg-orange-50'
-                }`}
+                  }`}
               >
                 <span className="text-2xl mb-1">{config.icon}</span>
                 <span className="text-xs font-medium uppercase">{config.title}</span>

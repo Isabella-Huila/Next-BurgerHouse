@@ -3,13 +3,16 @@ import authReducer from "./slices/authSlice";
 import usersReducer from "./slices/usersSlice";
 import toppingsReducer from "./slices/toppingsSlice";
 import productReducer from "./slices/productSlice";
+import cartReducer from "./slices/cartSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     users: usersReducer,
     toppings: toppingsReducer,
-    products: productReducer
+    products: productReducer,
+    cart: cartReducer,
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
