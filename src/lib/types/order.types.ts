@@ -28,4 +28,14 @@ export interface Order {
   state: OrderState;
   products: Product[];
   address: string;
+  toppings?: {
+    topping: string;
+    productId: string;
+    quantity: number;
+    price: number;
+  }[];
+  items?: {
+    productId: string;
+    quantity: number;
+  }[]
 }

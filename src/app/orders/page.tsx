@@ -135,6 +135,31 @@ export default function OrdersPage() {
       orderState !== OrderState.Cancelled;
   };
 
+  // Helper function to get product quantity from items array
+  const getProductQuantity = (productId: string, items?: { productId: string; quantity: number }[]) => {
+    if (!items) return 1; // Default quantity if no items array
+    const item = items.find(item => item.productId === productId);
+    return item ? item.quantity : 1;
+  };
+
+  // Helper function to get toppings for a product
+  const getProductToppings = (productId: string, toppings?: { topping: string; productId: string; quantity: number, price: number }[], allProducts?: Product[]) => {
+    if (!toppings || !allProducts) return [];
+    
+    return toppings
+      .filter(topping => topping.productId === productId)
+      .map(topping => {
+        const toppingProduct = allProducts.find(p => p.id === topping.productId);
+        return {
+          ...toppingProduct,
+          quantity: topping.quantity,
+          name: `Topping ${topping.topping}`,
+          price: topping.price || 0
+        };
+      })
+      .filter(topping => topping.name); // Only include toppings that were found
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -210,26 +235,68 @@ export default function OrdersPage() {
                 <div className="mt-6">
                   <h3 className="text-md font-medium text-gray-800 mb-2">Productos</h3>
                   <div className="divide-y divide-gray-200">
-                    {order.products.map((product: Product) => (
-                      <div key={product.id} className="py-3 flex justify-between">
-                        <div className="flex items-center">
-                          {product.imageUrl && (
-                            <img
-                              src={product.imageUrl}
-                              alt={product.name}
-                              className="w-16 h-16 object-cover rounded-md mr-4"
-                            />
-                          )}
-                          <div>
-                            <p className="text-sm font-medium text-gray-800">{product.name}</p>
-                            <p className="text-xs text-gray-500">{product.category}</p>
+                    {order.products.map((product: Product) => {
+                      const quantity = getProductQuantity(product.id, order.items);
+                      const toppings = getProductToppings(product.id, order.toppings, order.products);
+                      const productTotal = product.price * quantity;
+                      const toppingsTotal = toppings.reduce((sum, topping) => sum + (topping.price * topping.quantity), 0);
+                      const itemTotal = productTotal + toppingsTotal;
+
+                      return (
+                        <div key={product.id} className="py-3">
+                          <div className="flex justify-between">
+                            <div className="flex items-start">
+                              {product.imageUrl && (
+                                <img
+                                  src={product.imageUrl}
+                                  alt={product.name}
+                                  className="w-16 h-16 object-cover rounded-md mr-4"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <div className="flex items-center">
+                                  <p className="text-sm font-medium text-gray-800">{product.name}</p>
+                                  {quantity > 1 && (
+                                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                      x{quantity}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-500">{product.category}</p>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  ${formatPrice(product.price)} {quantity > 1 && `x ${quantity}`}
+                                </p>
+                                
+                                {/* Display toppings */}
+                                {toppings.length > 0 && (
+                                  <div className="mt-2 ml-4">
+                                    <p className="text-xs text-gray-500 font-medium">Toppings:</p>
+                                    {toppings.map((topping, index) => (
+                                      <div key={`${topping.id}-${index}`} className="text-xs text-gray-600 ml-2">
+                                        • {topping.name} 
+                                        {topping.quantity > 1 && ` x${topping.quantity}`}
+                                        {topping.price > 0 && ` (+$${formatPrice(topping.price * topping.quantity)})`}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium text-gray-800">
+                                ${formatPrice(itemTotal)}
+                              </p>
+                              {(toppingsTotal > 0 || quantity > 1) && (
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {quantity > 1 && <div>Base: ${formatPrice(productTotal)}</div>}
+                                  {toppingsTotal > 0 && <div>Toppings: +${formatPrice(toppingsTotal)}</div>}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-gray-800">${formatPrice(product.price)}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -264,6 +331,30 @@ export default function OrdersPage() {
             </div>
           ))}
 
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center space-x-2 mt-8">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                Anterior
+              </button>
+              
+              <span className="px-4 py-2 text-sm text-gray-700">
+                Página {currentPage} de {totalPages}
+              </span>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

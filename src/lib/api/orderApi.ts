@@ -40,6 +40,36 @@ class OrderApi {
         }
     }
 
+    async createOrder(
+        total: number,
+        productIds: string[],
+        address: string,
+        toppings?: {
+            productId: string;
+            topping: string;
+            quantity: number;
+        }[],
+        items?: {
+            productId: string;
+            quantity: number;
+        }[]
+    ): Promise<Order> {
+        const response = await this.request<Order>(
+            `/orders`,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    total,
+                    productIds,
+                    address,
+                    toppings,
+                    items,
+                }),
+            }
+        );
+        return response;
+    }
+
     async getOrders(limit: number = 10, offset: number = 0): Promise<PaginatedResponse<Order>> {
         const response = await this.request<PaginatedResponse<Order>>(
             `/orders/user?limit=${limit}&offset=${offset}`,
