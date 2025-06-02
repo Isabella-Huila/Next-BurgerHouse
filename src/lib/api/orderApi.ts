@@ -70,6 +70,17 @@ class OrderApi {
         return response;
     }
 
+
+    async eraseOrder(orderId: string): Promise<Order> {
+        const response = await this.request<Order>(
+            `/orders/admin/${orderId}`,
+            {
+                method: "DELETE",
+            }
+        );
+        return response;
+    }
+
 }
 
 export const order = new OrderApi();

@@ -1,9 +1,9 @@
 import { API_BASE_URL } from "../consts/api";
-import { LoginDto, RegisterDto, AuthResponse, User } from "../types/auth.types";
+import { Order, PaginatedResponse } from "../types/order.types";
 import { storage } from "../utils/storage";
 
 
-class AuthApi {
+class ReportApi {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -39,30 +39,38 @@ class AuthApi {
     }
   }
 
-  async login(loginData: LoginDto): Promise<AuthResponse> {
-    return this.request<AuthResponse>("/users/login", {
-      method: "POST",
-      body: JSON.stringify(loginData),
-    });
+  async getDailyReport(): Promise<{base64: string}> {
+    const response = await this.request<{base64: string}>(
+      `/reports/products/top-selling/daily`,
+      {
+        method: "GET",
+      }
+    );
+    return response;
   }
 
-  async register(registerData: RegisterDto): Promise<AuthResponse> {
-    return this.request<AuthResponse>("/users/register", {
-      method: "POST",
-      body: JSON.stringify(registerData),
-    });
+  async getWeeklyReport(): Promise<{base64: string}> {
+    const response = await this.request<{base64: string}>(
+      `/reports/products/top-selling/weekly`,
+      {
+        method: "GET",
+      }
+    );
+    return response;
   }
 
-  async getProfile(): Promise<User> {
-    return this.request<User>("/users/profile");
+  async getMothlyReport(): Promise<{base64: string}> {
+    const response = await this.request<{base64: string}>(
+      `/reports/products/top-selling/monthly`,
+      {
+        method: "GET",
+      }
+    );
+    return response;
   }
 
-  async updateProfile(email: string, updateData: Partial<User>): Promise<User> {
-    return this.request<User>(`/users/${email}`, {
-      method: "PATCH",
-      body: JSON.stringify(updateData),
-    });
-  }
 }
 
-export const authApi = new AuthApi();
+
+
+export const reportApi = new ReportApi();

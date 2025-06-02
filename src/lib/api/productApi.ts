@@ -1,4 +1,3 @@
-import { API_BASE_URL } from "../consts/api";
 import {
   Product,
   CreateProductDto,
@@ -6,6 +5,7 @@ import {
   ProductsResponse,
 } from "../types/product.types";
 
+const API_BASE_URL = "http://localhost:3000";
 
 export interface PaginationDto {
   page?: number;

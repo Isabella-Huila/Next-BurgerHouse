@@ -1,87 +1,99 @@
 "use client";
-import { order } from '@/lib/api/orderApi'
+import { order } from '@/lib/api/orderApi';
 import { useUserRoles } from '@/lib/hooks/useUserRoles';
-import { Order, OrderState } from '@/lib/types/order.types'
-import { Product } from '@/lib/types/product.types'
+import { Order, OrderState } from '@/lib/types/order.types';
+import { Product } from '@/lib/types/product.types';
 import { formatDate } from '@/lib/utils/date';
-import { getOrderStateColor } from '@/lib/utils/order'
-import React, { useEffect, useState } from 'react'
+import { getOrderStateColor } from '@/lib/utils/order';
+import React, { useEffect, useState } from 'react';
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [limit] = useState(5)
-  const [processingOrder, setProcessingOrder] = useState<string | null>(null)
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(5);
+  const [processingOrder, setProcessingOrder] = useState<string | null>(null);
 
   const { hasAnyRole } = useUserRoles();
   const canCancelOrders = hasAnyRole(['customer']);
   const canUpdateOrders = hasAnyRole(['admin', 'delivery']);
+  const canDeleteOrders = hasAnyRole(['admin']);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        setLoading(true)
-        const ordersData = await order.getOrders(limit, currentPage)
-        const processedOrders = ordersData.data.map(order => ({
-          ...order,
-          products: order.products.map(product => ({
-            ...product,
-            price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
-          }))
-        }))
-        setOrders(processedOrders)
-        setTotalPages(ordersData.totalPages || 1)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch orders')
-      } finally {
-        setLoading(false)
-      }
-    }
+        setLoading(true);
+        setError(null);
+        const ordersData = await order.getOrders(limit, currentPage);
+          console.log('Orders Data:', ordersData);
+        if (!ordersData?.data || !Array.isArray(ordersData.data)) {
+          throw new Error('Invalid orders data received from server');
+        }
 
-    fetchOrders()
-  }, [currentPage, limit])
+        const processedOrders = ordersData.data;
+        console.log('Processed Orders:', processedOrders);
+        setOrders(processedOrders);
+        setTotalPages(ordersData.totalPages || 1);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch orders');
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [currentPage, limit]);
 
   const formatPrice = (price: number | string) => {
-    const numericPrice = typeof price === 'string' ? parseFloat(price) : price
-    return numericPrice.toFixed(2)
-  }
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return numericPrice.toFixed(2);
+  };
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage)
+      setCurrentPage(newPage);
     }
-  }
+  };
 
   const handleUpdateStatus = async (orderId: string) => {
+    if (!orderId) return;
+
     try {
-      setProcessingOrder(orderId)
-      const updatedOrder = await order.updateOrderToNextStatus(orderId)
+      setProcessingOrder(orderId);
+      const updatedOrder = await order.updateOrderToNextStatus(orderId);
       setOrders(prevOrders =>
         prevOrders.map(order =>
-          order.id === orderId ? updatedOrder : order
+          order.id === orderId ? {
+            ...updatedOrder,
+            id: updatedOrder.id || orderId,
+            date: updatedOrder.date || order.date,
+            address: updatedOrder.address || order.address,
+            state: updatedOrder.state || order.state,
+            total: updatedOrder.total || order.total,
+            products: updatedOrder.products || order.products
+          } : order
         )
-      )
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update order status')
+      setError(err instanceof Error ? err.message : 'Failed to update order status');
     } finally {
-      setProcessingOrder(null)
+      setProcessingOrder(null);
     }
-  }
+  };
 
   const handleCancelOrder = async (orderId: string) => {
-    if (!orderId) return
+    if (!orderId) return;
 
     try {
-      setProcessingOrder(orderId)
-      const cancelledOrder = await order.cancelOrder(orderId)
+      setProcessingOrder(orderId);
+      const cancelledOrder = await order.cancelOrder(orderId);
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order.id === orderId ? {
             ...cancelledOrder,
-            // Ensure all required fields exist in the cancelled order
             id: cancelledOrder.id || orderId,
             date: cancelledOrder.date || order.date,
             address: cancelledOrder.address || order.address,
@@ -90,26 +102,45 @@ export default function OrdersPage() {
             products: cancelledOrder.products || order.products
           } : order
         )
-      )
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to cancel order')
+      setError(err instanceof Error ? err.message : 'Failed to cancel order');
     } finally {
-      setProcessingOrder(null)
+      setProcessingOrder(null);
     }
-  }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!orderId) return;
+
+    try {
+      setProcessingOrder(orderId);
+      await order.eraseOrder(orderId);
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+
+      // If we deleted the last item on the page, go to previous page
+      if (orders.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete order');
+    } finally {
+      setProcessingOrder(null);
+    }
+  };
 
   const canCancel = (orderState: OrderState) => {
     return orderState !== OrderState.OnTheWay &&
       orderState !== OrderState.Delivered &&
-      orderState !== OrderState.Cancelled
-  }
+      orderState !== OrderState.Cancelled;
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -126,7 +157,7 @@ export default function OrdersPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -145,16 +176,28 @@ export default function OrdersPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-800">
-                      Orden #{order.id ? order.id.slice(0, 8) : 'N/A'}
+                      Orden #{order.id?.slice(0, 8) || 'N/A'}
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">
                       {formatDate(order.date)}
                     </p>
                   </div>
-                  <div>
+                  <div className="flex items-center space-x-2">
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getOrderStateColor(order.state)}`}>
                       {order.state}
                     </span>
+                    {canDeleteOrders &&  canCancel(order.state) &&(
+                      <button
+                        onClick={() => handleDeleteOrder(order.id)}
+                        disabled={processingOrder === order.id}
+                        className="p-1 text-red-500 hover:text-red-700 disabled:text-red-300"
+                        title="Eliminar orden permanentemente"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -221,38 +264,8 @@ export default function OrdersPage() {
             </div>
           ))}
 
-          {/* Pagination Controls */}
-          <div className="flex justify-center items-center mt-8">
-            <nav className="flex items-center space-x-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`px-3 py-1 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
-              >
-                Anterior
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 rounded-md ${currentPage === page ? 'bg-orange-500 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
-              >
-                Siguiente
-              </button>
-            </nav>
-          </div>
         </div>
       )}
     </div>
-  )
+  );
 }
