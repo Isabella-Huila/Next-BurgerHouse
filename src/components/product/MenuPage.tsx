@@ -54,7 +54,7 @@ export default function MenuPage() {
   }, [dispatch]);
 
   const filteredProducts = products.filter(
-    product => product.category === selectedCategory && product.isActive
+  (product: Product) => product.category === selectedCategory && product.isActive
   );
 
   const handleAddToCart = (product: Product) => {
@@ -185,7 +185,7 @@ export default function MenuPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product: Product) => (
               <ProductCard
                 key={product.id}
                 product={product}

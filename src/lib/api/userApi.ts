@@ -1,6 +1,6 @@
+import { API_BASE_URL } from "../consts/api";
 import { User } from "../types/auth.types";
 
-const API_BASE_URL = "http://localhost:3000";
 
 export interface UpdateUserDto {
   email?: string;

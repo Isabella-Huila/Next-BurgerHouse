@@ -9,7 +9,7 @@ export default function WelcomePage() {
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
   return (
-    <div className="text-black flex flex-col justify-center items-center px-4">
+    <div className="text-black flex flex-col justify-center items-center px-4 pt-12">
       <div className="text-center">
         <h1 className="text-6xl md:text-8xl font-black mb-4">
           BURGER<span className="text-[#ff914d] block">HOUSE</span>

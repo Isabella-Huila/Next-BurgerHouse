@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../consts/api";
 import {
   Topping,
   CreateToppingDto,
@@ -5,7 +6,6 @@ import {
   ToppingsResponse,
 } from "../types/topping.types";
 
-const API_BASE_URL = "http://localhost:3000";
 
 export interface PaginationDto {
   page?: number;

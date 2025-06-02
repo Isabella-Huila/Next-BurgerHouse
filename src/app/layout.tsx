@@ -17,11 +17,12 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="min-h-screen">
+        
         <ReduxProvider>
           <AuthInitializer>
             <AuthChecker/>
               <Sidebar />
-              <main className="pt-20 px-4 sm:px-6 lg:px-8">
+              <main className="pt-8 px-4 sm:px-6 lg:px-8">
                 {children}
               </main>
           </AuthInitializer>

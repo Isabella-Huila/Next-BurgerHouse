@@ -1,7 +1,7 @@
+import { API_BASE_URL } from "../consts/api";
 import { LoginDto, RegisterDto, AuthResponse, User } from "../types/auth.types";
 import { storage } from "../utils/storage";
 
-const API_BASE_URL = "http://localhost:3000";
 
 class AuthApi {
   private async request<T>(

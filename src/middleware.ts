@@ -14,7 +14,6 @@ export function isTokenValid(token: string): boolean {
 }
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
   const publicPaths = ["/", "/login", "/register", "/forgot-password"];
@@ -22,8 +21,6 @@ export function middleware(request: NextRequest) {
   if (publicPaths.includes(pathname)) {
     return NextResponse.next();
   }
-
-
 
   return NextResponse.next();
 }
