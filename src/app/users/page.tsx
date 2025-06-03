@@ -1,7 +1,7 @@
 'use client';
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import UsersManagement from "@/components/user/UsersManagement";
+import ProtectedRoute from "../../components/auth/ProtectedRoute";
+import UsersManagement from "../../components/user/UsersManagement";
 
 
 

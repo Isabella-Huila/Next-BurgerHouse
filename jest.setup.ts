@@ -32,6 +32,21 @@ Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'URL', {
+    writable: true,
+    value: {
+      createObjectURL: jest.fn(() => 'mocked-blob-url'),
+      revokeObjectURL: jest.fn(),
+    },
+  });
+}
+
+
+if (typeof global.atob === 'undefined') {
+  global.atob = jest.fn((str) => str);
+}
+
 // Mock para document.cookie
 Object.defineProperty(document, "cookie", {
   writable: true,

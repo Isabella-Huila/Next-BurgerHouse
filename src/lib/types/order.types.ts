@@ -8,7 +8,8 @@ export enum OrderState {
   Ready = 'ready',
   OnTheWay = 'onTheWay',
   Delivered = 'delivered',
-  Cancelled = 'cancelled'
+  Cancelled = 'cancelled',
+  InProgress = "InProgress"
 }
 
 export interface PaginatedResponse<T> {
