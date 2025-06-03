@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  eslint: {
+    dirs: ["src/app", "src/components", "src/lib"],
+  },
   images: {
     remotePatterns: [
       {
@@ -8,8 +11,8 @@ const nextConfig: NextConfig = {
         hostname: "**.postimg.cc",
       },
       {
-         protocol: 'https',
-         hostname: '**',
+        protocol: "https",
+        hostname: "**",
       },
     ],
   },
