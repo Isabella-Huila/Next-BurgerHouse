@@ -10,6 +10,9 @@ const config: Config = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   moduleNameMapper: {
+  collectCoverage: true,
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
@@ -26,6 +29,7 @@ const config: Config = {
   testEnvironmentOptions: {
     customExportConditions: [""],
   },
-};
+}};
 
 export default createJestConfig(config);
+

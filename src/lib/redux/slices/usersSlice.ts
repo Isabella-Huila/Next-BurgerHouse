@@ -1,5 +1,5 @@
-import { UpdateUserDto, usersApi } from "@/lib/api/userApi";
-import { User } from "@/lib/types/auth.types";
+import { UpdateUserDto, usersApi } from "../../../lib/api/userApi";
+import { User } from "../../../lib/types/auth.types";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 interface PaginationMeta {

@@ -1,8 +1,8 @@
 import '../globals.css';
 import { ReduxProvider } from '../lib/redux/providers/ReduxProvider';
 import Sidebar from '../components/layout/Sidebar';
-import AuthInitializer from '@/components/auth/AuthInitializer';
-import { AuthChecker } from '@/components/auth/AuthChecker';
+import AuthInitializer from '../components/auth/AuthInitializer';
+import { AuthChecker } from '../components/auth/AuthChecker';
 
 export const metadata = {
   title: 'Burger House',

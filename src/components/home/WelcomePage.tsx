@@ -3,10 +3,13 @@
 import Link from 'next/link';
 import { ShoppingCart, UserPlus } from 'lucide-react';
 import { useAppSelector } from '../../lib/hooks/redux';
-
+import { useUserRoles } from '../../lib/hooks/useUserRoles';
 
 export default function WelcomePage() {
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const { hasAnyRole } = useUserRoles();
+
+  const canOrder = hasAnyRole(['customer', 'admin']);
 
   return (
     <div className="text-black flex flex-col justify-center items-center px-4 pt-12">
@@ -19,15 +22,17 @@ export default function WelcomePage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href={isAuthenticated ? "/menu" : "/login"}>
-            <button 
-              className="flex items-center justify-center gap-2 bg-[#ff914d] hover:bg-[#e8823d] text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors disabled:opacity-50"
-              disabled={isLoading}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              HACER PEDIDO
-            </button>
-          </Link>
+          {canOrder && (
+            <Link href={isAuthenticated ? "/menu" : "/login"}>
+              <button 
+                className="flex items-center justify-center gap-2 bg-[#ff914d] hover:bg-[#e8823d] text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors disabled:opacity-50"
+                disabled={isLoading}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                HACER PEDIDO
+              </button>
+            </Link>
+          )}
 
           {!isAuthenticated && (
             <Link href="/login">

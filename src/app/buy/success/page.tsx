@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
-import { clearCart } from '@/lib/redux/slices/cartSlice';
-import { useAppDispatch } from '@/lib/hooks/redux';
+import { clearCart } from '../../../lib/redux/slices/cartSlice';
+import { useAppDispatch } from '../../../lib/hooks/redux';
 
 export default function PaymentSuccessPage() {
   const dispatch = useAppDispatch();

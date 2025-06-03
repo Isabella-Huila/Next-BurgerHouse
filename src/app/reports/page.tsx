@@ -1,5 +1,5 @@
 "use client";
-import { reportApi } from '@/lib/api/reportApi';
+import { reportApi } from '../../lib/api/reportApi';
 import React, { useState } from 'react';
 import { FileText, Download, Calendar, TrendingUp, BarChart3, Loader2 } from 'lucide-react';
 
@@ -23,7 +23,7 @@ const ReportViewer = () => {
 
   const handleGetReport = async (reportType: 'daily' | 'weekly' | 'monthly') => {
     try {
-      setLoading(true);
+      setLoading(true);   
       setError(null);
       setActiveReport(reportType);
       

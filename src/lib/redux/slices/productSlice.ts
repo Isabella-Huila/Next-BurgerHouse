@@ -1,7 +1,7 @@
-import { Product } from "@/lib/types/product.types";
+import { Product } from "../../../lib/types/product.types";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { CreateProductDto, UpdateProductDto } from "../../types/product.types";
-import { productApi } from "@/lib/api/productApi";
+import { productApi } from "../../../lib/api/productApi";
 
 interface PaginationMeta {
   limit: number;

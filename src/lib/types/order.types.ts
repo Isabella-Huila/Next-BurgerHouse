@@ -8,7 +8,8 @@ export enum OrderState {
   Ready = 'ready',
   OnTheWay = 'onTheWay',
   Delivered = 'delivered',
-  Cancelled = 'cancelled'
+  Cancelled = 'cancelled',
+  InProgress = "InProgress"
 }
 
 export interface PaginatedResponse<T> {
@@ -16,7 +17,7 @@ export interface PaginatedResponse<T> {
   total: number;
   limit: number;
   offset: number;
-  currentPage?: number; // Opcional, para conveniencia
+  currentPage?: number; 
   totalPages: number;
 }
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { CreateToppingDto } from '@/lib/types/topping.types';
+import { CreateToppingDto } from '../../lib/types/topping.types';
 import { useAppSelector, useAppDispatch } from '../../lib/hooks/redux';
 import Input from '../ui/Input';
 import Alert from '../ui/Alert';
-import { createTopping, clearError } from '@/lib/redux/slices/toppingsSlice';
+import { createTopping, clearError } from '../../lib/redux/slices/toppingsSlice';
 
 interface CreateToppingFormProps {
   onSuccess: () => void;
