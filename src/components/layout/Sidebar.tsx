@@ -20,7 +20,7 @@ export default function Sidebar() {
       href: '/menu',
       icon: <Menu className="w-5 h-5" />,
       label: 'MENU',
-      roles: ['customer', 'admin', 'delivery'],
+      roles: ['customer', 'admin'],
       component: 'Link'
     },
     // {

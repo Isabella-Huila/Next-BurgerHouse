@@ -212,7 +212,7 @@ export default function CartPage() {
         }
       });
 
-      // Agregar un ítem adicional para los toppings si es necesario (solo para visualización)
+  
       const toppingsTotal = getToppingsTotal();
       if (toppingsTotal > 0) {
         const toppingsIndex = items.length;
