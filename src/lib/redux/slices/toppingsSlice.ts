@@ -1,4 +1,4 @@
-import { Topping } from "@/lib/types/topping.types";
+import { Topping } from "../../../lib/types/topping.types";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { toppingApi } from '../../api/toppingApi';
 import { CreateToppingDto, UpdateToppingDto } from '../../types/topping.types';

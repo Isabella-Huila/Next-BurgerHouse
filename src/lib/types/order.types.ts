@@ -16,7 +16,7 @@ export interface PaginatedResponse<T> {
   total: number;
   limit: number;
   offset: number;
-  currentPage?: number; // Opcional, para conveniencia
+  currentPage?: number; 
   totalPages: number;
 }
 

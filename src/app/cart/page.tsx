@@ -35,10 +35,10 @@ export default function CartPage() {
   const { items, total } = useAppSelector((state) => state.cart);
   const { toppings, loading } = useAppSelector((state) => state.toppings);
 
-  // Filtrar solo productos de categoría "burgers"
+ 
   const burgerItems = items.filter(item => item.category === 'burgers');
 
-  // Cargar toppings al montar el componente
+  
   useEffect(() => {
     dispatch(fetchToppings({ limit: 50 }));
   }, [dispatch]);
@@ -67,9 +67,9 @@ export default function CartPage() {
     const currentToppingQuantity = currentProductToppings.find(t => t.id === toppingId)?.quantity || 0;
     const totalToppingsWithoutCurrent = currentProductToppings.filter(t => t.id !== toppingId).reduce((sum, t) => sum + t.quantity, 0);
 
-    // Verificar si el nuevo total excede el límite de 5
+    
     if (totalToppingsWithoutCurrent + newQuantity > 5) {
-      return; // No permitir la acción si excede el límite
+      return; 
     }
 
     setSelectedToppings(prev => {
@@ -99,14 +99,14 @@ export default function CartPage() {
     return getCurrentProductToppings().reduce((sum, topping) => sum + topping.quantity, 0);
   };
 
-  // FUNCIÓN CORREGIDA: Calcular total de toppings multiplicado por cantidad de productos
+  
   const getToppingsTotal = () => {
     return selectedToppings.reduce((sum, selectedTopping) => {
       const topping = toppings.find(t => t.id === selectedTopping.id);
       const product = items.find(p => p.id === selectedTopping.productId);
 
       if (topping && product) {
-        // Multiplicar el precio del topping por su cantidad Y por la cantidad del producto
+       
         return sum + (topping.price * selectedTopping.quantity * product.quantity);
       }
 
@@ -141,7 +141,7 @@ export default function CartPage() {
   };
 
   const handleSkipToppings = () => {
-    // Remover toppings del producto actual
+    
     const currentProduct = burgerItems[currentProductIndex];
     if (currentProduct) {
       setSelectedToppings(prev => prev.filter(t => t.productId !== currentProduct.id));
@@ -157,16 +157,16 @@ export default function CartPage() {
 
     setIsLoading(true);
     try {
-      // Preparar datos para la API de orders
+     
       const productIds = items.flatMap(item => Array(item.quantity).fill(item.id));
 
-      // Preparar items con cantidad
+      
       const itemsData = items.map(item => ({
         productId: item.id,
         quantity: item.quantity
       }));
 
-      // Preparar toppings con nombres de topping (no solo IDs)
+      
       const toppingsData = selectedToppings.map(selectedTopping => {
         const topping = toppings.find(t => t.id === selectedTopping.id);
         return {
@@ -177,7 +177,7 @@ export default function CartPage() {
         };
       });
 
-      // Crear la orden usando tu API
+     
       const orderResponse = await order.createOrder(
         getFinalTotal(),
         productIds as string[],
@@ -186,22 +186,22 @@ export default function CartPage() {
         itemsData
       );
 
-      // Ahora crear sesión de Stripe con el detalle completo de productos y toppings
+      
       const requestUrl = window.location.origin;
       const formData = new URLSearchParams();
 
-      // Agregar cada producto como un ítem separado
+      
       items.forEach((item, index) => {
-        // Producto base
+      
         formData.append(`line_items[${index}][quantity]`, item.quantity.toString());
         formData.append(`line_items[${index}][price_data][currency]`, 'cop');
         formData.append(`line_items[${index}][price_data][product_data][name]`, item.name);
         formData.append(`line_items[${index}][price_data][unit_amount]`, (item.price * 100).toString());
 
-        // Buscar toppings para este producto
+       
         const productToppings = selectedToppings.filter(t => t.productId === item.id);
         if (productToppings.length > 0) {
-          // Crear descripción detallada con toppings
+          
           let toppingsDescription = "Toppings: ";
           toppingsDescription += productToppings.map(selectedTopping => {
             const topping = toppings.find(t => t.id === selectedTopping.id);
@@ -293,7 +293,7 @@ export default function CartPage() {
             <div className="divide-y divide-gray-200">
               {items.map((item: Product & { quantity: number }) => {
                 const productToppings = selectedToppings.filter(t => t.productId === item.id);
-                // CORREGIDO: Calcular total de toppings multiplicado por cantidad del producto
+                
                 const productToppingsTotal = productToppings.reduce((sum, selectedTopping) => {
                   const topping = toppings.find(t => t.id === selectedTopping.id);
                   return sum + (topping ? topping.price * selectedTopping.quantity * item.quantity : 0);
