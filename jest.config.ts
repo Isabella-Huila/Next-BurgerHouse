@@ -12,6 +12,8 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+
+  
   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
   moduleDirectories: ["node_modules", "<rootDir>/"],
   testEnvironmentOptions: {
