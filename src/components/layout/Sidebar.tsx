@@ -5,7 +5,7 @@ import { ShoppingCart, User, Users, Cookie, Package, PieChart, Home, Menu } from
 import { useAppSelector } from '../../lib/hooks/redux';
 import { useUserRoles } from '../../lib/hooks/useUserRoles';
 import Link from 'next/link';
-import { CartItem } from '@/lib/redux/slices/cartSlice';
+import { CartItem } from '../../lib/redux/slices/cartSlice';
 
 export default function Sidebar() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);

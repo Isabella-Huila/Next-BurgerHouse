@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/lib/hooks/redux';
-import { removeItem, updateQuantity, clearCart } from '@/lib/redux/slices/cartSlice';
-import { fetchToppings } from '@/lib/redux/slices/toppingsSlice';
+import { useAppSelector, useAppDispatch } from '../../lib/hooks/redux';
+import { removeItem, updateQuantity, clearCart } from '../../lib/redux/slices/cartSlice';
+import { fetchToppings } from '../../lib/redux/slices/toppingsSlice';
 import { Trash2, ArrowLeft, CreditCard, Plus, Minus, X } from 'lucide-react';
-import { formatPrice } from '@/lib/utils/price';
+import { formatPrice } from '../../lib/utils/price';
 import Link from 'next/link';
-import { Product } from '@/lib/types/product.types';
-import { Topping } from '@/lib/types/topping.types';
+import { Product } from '../../lib/types/product.types';
+import { Topping } from '../../lib/types/topping.types';
 import axios from 'axios';
-import { useAuthUserId } from '@/lib/hooks/useAuthUserId';
+import { useAuthUserId } from '../../lib/hooks/useAuthUserId';
 import { Dialog, DialogPanel, DialogTitle, DialogDescription, Transition, TransitionChild } from '@headlessui/react';
-import { order } from '@/lib/api/orderApi';
+import { order } from '../..//lib/api/orderApi';
 
 interface SelectedTopping {
   id: string;

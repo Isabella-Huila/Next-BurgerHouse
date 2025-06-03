@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ShoppingCart, UserPlus } from 'lucide-react';
 import { useAppSelector } from '../../lib/hooks/redux';
-import { useUserRoles } from '@/lib/hooks/useUserRoles';
+import { useUserRoles } from '../../lib/hooks/useUserRoles';
 
 export default function WelcomePage() {
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);

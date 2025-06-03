@@ -1,4 +1,4 @@
-import WelcomePage from "@/components/home/WelcomePage";
+import WelcomePage from "../components/home/WelcomePage";
 
 
 export default function Home() {
