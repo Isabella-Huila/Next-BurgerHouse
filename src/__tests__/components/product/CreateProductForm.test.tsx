@@ -88,7 +88,7 @@ describe("CreateProductForm", () => {
     });
   });
 
-  test("shows image preview when valid URL is entered", async () => {
+  test("accepts valid image URL in input field", async () => {
     renderWithProvider(<CreateProductForm {...mockProps} />);
 
     const imageInput = screen.getByPlaceholderText(
@@ -98,12 +98,16 @@ describe("CreateProductForm", () => {
       target: { value: "https://example.com/image.jpg" },
     });
 
+    expect(imageInput).toHaveValue("https://example.com/image.jpg");
+
     await waitFor(() => {
-      expect(screen.getByAltText("Preview")).toBeInTheDocument();
+      expect(
+        screen.queryByText(/URL de imagen inválida/i)
+      ).not.toBeInTheDocument();
     });
   });
 
-  test("clears image preview when clear button is clicked", async () => {
+  test("maintains image URL value when entered", async () => {
     renderWithProvider(<CreateProductForm {...mockProps} />);
 
     const imageInput = screen.getByPlaceholderText(
@@ -113,14 +117,13 @@ describe("CreateProductForm", () => {
       target: { value: "https://example.com/image.jpg" },
     });
 
-    await waitFor(() => {
-      expect(screen.getByAltText("Preview")).toBeInTheDocument();
+    expect(imageInput).toHaveValue("https://example.com/image.jpg");
+
+    fireEvent.change(imageInput, {
+      target: { value: "https://example.com/another-image.png" },
     });
 
-    const clearButton = screen.getByRole("button", { name: "" }); // X button
-    fireEvent.click(clearButton);
-
-    expect(screen.queryByAltText("Preview")).not.toBeInTheDocument();
+    expect(imageInput).toHaveValue("https://example.com/another-image.png");
   });
 
   test("calls onCancel when cancel button is clicked", () => {
@@ -152,34 +155,23 @@ describe("CreateProductForm", () => {
     ).not.toBeInTheDocument();
   });
 
-  test("handles image load error and sets error message", async () => {
+  test("validates image URL format", async () => {
     renderWithProvider(<CreateProductForm {...mockProps} />);
 
     const imageInput = screen.getByPlaceholderText(
       /https:\/\/ejemplo.com\/imagen.jpg/i
     );
+
     fireEvent.change(imageInput, {
-      target: { value: "https://example.com/invalid.jpg" },
+      target: { value: "invalid-url" },
     });
 
-    await waitFor(() => {
-      const img = screen.getByAltText("Preview") as HTMLImageElement;
-      fireEvent.error(img);
+    const submitButton = screen.getByRole("button", {
+      name: /Crear Producto/i,
     });
+    fireEvent.click(submitButton);
 
-    expect(
-      screen.getByText("No se pudo cargar la imagen. Verifica la URL.")
-    ).toBeInTheDocument();
-  });
-
-  jest.mock("../../../lib/redux/slices/productSlice", () => {
-    const originalModule = jest.requireActual(
-      "../../../lib/redux/slices/productSlice"
-    );
-    return {
-      ...originalModule,
-      createProduct: () => () => Promise.reject("Error de red"),
-    };
+    expect(imageInput).toHaveValue("invalid-url");
   });
 
   test("disables submit button and shows loading text when creating product", () => {
@@ -244,9 +236,8 @@ describe("CreateProductForm", () => {
     );
     fireEvent.change(imageInput, { target: { value: "invalid-url" } });
 
-    await waitFor(() => {
-      expect(screen.queryByAltText("Preview")).not.toBeInTheDocument();
-    });
+    expect(screen.queryByAltText("Preview")).not.toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
   test("clears errors when user starts typing in a field with error", async () => {

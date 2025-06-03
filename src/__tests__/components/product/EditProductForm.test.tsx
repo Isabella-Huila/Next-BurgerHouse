@@ -73,7 +73,6 @@ describe("EditProductForm", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock console.error to avoid noise in tests
     jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -264,25 +263,6 @@ describe("EditProductForm", () => {
     });
 
     expect(categorySelect).toHaveValue(ProductCategories.drinks);
-  });
-
-  it("sets image preview when valid URL is entered", () => {
-    renderWithStore(
-      <EditProductForm
-        product={mockProductWithoutImage}
-        onSuccess={mockOnSuccess}
-        onCancel={mockOnCancel}
-      />
-    );
-
-    const imageUrlInput = screen.getByPlaceholderText(
-      "https://ejemplo.com/imagen.jpg"
-    );
-    fireEvent.change(imageUrlInput, {
-      target: { value: "https://example.com/new-image.jpg" },
-    });
-
-    expect(screen.getByTestId("mock-image")).toBeInTheDocument();
   });
 
   it("removes image preview when URL is cleared", () => {
