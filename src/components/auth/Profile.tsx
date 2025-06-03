@@ -35,7 +35,7 @@ export default function Profile() {
     {
       icon: <User className="w-5 h-5" />,
       title: 'Pedidos',
-      href: '/orders'
+      href: '/order'
     },
   ];
 
