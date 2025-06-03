@@ -23,7 +23,7 @@ const ReportViewer = () => {
 
   const handleGetReport = async (reportType: 'daily' | 'weekly' | 'monthly') => {
     try {
-      setLoading(true);
+      setLoading(true);   
       setError(null);
       setActiveReport(reportType);
       

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Edit, Trash2, Plus, Cookie } from 'lucide-react';
-import { Topping } from '@/lib/types/topping.types';
+import { Topping } from '../../lib/types/topping.types';
 import { useAppSelector, useAppDispatch } from '../../lib/hooks/redux';
 import { fetchToppings, deleteTopping, setPageLimit, clearError } from '../../lib/redux/slices/toppingsSlice';
 import { useAdmin } from '../../lib/hooks/useAdmin';

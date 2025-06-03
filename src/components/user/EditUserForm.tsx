@@ -2,11 +2,11 @@
 
 import { useState, FormEvent } from 'react';
 import { User } from '../../lib/types/auth.types';
-import { UpdateUserDto } from '@/lib/api/userApi';
+import { UpdateUserDto } from '../../lib/api/userApi';
 import { useAppSelector, useAppDispatch } from '../../lib/hooks/redux';
 import Input from '../ui/Input';
 import Alert from '../ui/Alert';
-import { updateUser, clearError } from '@/lib/redux/slices/usersSlice';
+import { updateUser, clearError } from '../../lib/redux/slices/usersSlice';
 
 interface EditUserFormProps {
   user: User;

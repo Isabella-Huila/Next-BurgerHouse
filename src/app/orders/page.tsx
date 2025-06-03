@@ -118,7 +118,7 @@ export default function OrdersPage() {
       await order.eraseOrder(orderId);
       setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
 
-      // If we deleted the last item on the page, go to previous page
+    
       if (orders.length === 1 && currentPage > 1) {
         setCurrentPage(prev => prev - 1);
       }
@@ -135,14 +135,14 @@ export default function OrdersPage() {
       orderState !== OrderState.Cancelled;
   };
 
-  // Helper function to get product quantity from items array
+  
   const getProductQuantity = (productId: string, items?: { productId: string; quantity: number }[]) => {
-    if (!items) return 1; // Default quantity if no items array
+    if (!items) return 1; 
     const item = items.find(item => item.productId === productId);
     return item ? item.quantity : 1;
   };
 
-  // Helper function to get toppings for a product
+  
   const getProductToppings = (productId: string, toppings?: { topping: string; productId: string; quantity: number, price: number }[], allProducts?: Product[]) => {
     if (!toppings || !allProducts) return [];
     
@@ -157,7 +157,7 @@ export default function OrdersPage() {
           price: topping.price || 0
         };
       })
-      .filter(topping => topping.name); // Only include toppings that were found
+      .filter(topping => topping.name);
   };
 
   if (loading) {

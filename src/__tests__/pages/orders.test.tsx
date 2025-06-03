@@ -303,8 +303,7 @@ describe('OrdersPage', () => {
     (order.eraseOrder as jest.Mock).mockResolvedValue({});
     
     render(<OrdersPage />);
-    
-    // Navigate to page 2
+ 
     await waitFor(() => {
       const nextButton = screen.getByText('Siguiente');
       fireEvent.click(nextButton);

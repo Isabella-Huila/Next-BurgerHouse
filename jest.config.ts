@@ -17,8 +17,8 @@ const config: Config = {
   testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
   collectCoverageFrom: [
     "src/**/*.{js,jsx,ts,tsx}",
-    "!src/*/.d.ts",
-    "!src/*/.stories.{js,jsx,ts,tsx}",
+    "!src/**/*.d.ts",
+    "!src/**/*.stories.{js,jsx,ts,tsx}",
     "!src/**/index.{js,jsx,ts,tsx}",
   ],
   moduleDirectories: ["node_modules", "<rootDir>/"],

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Topping, UpdateToppingDto } from '@/lib/types/topping.types';
+import { Topping, UpdateToppingDto } from '../../lib/types/topping.types';
 import { useAppSelector, useAppDispatch } from '../../lib/hooks/redux';
 import Input from '../ui/Input';
 import Alert from '../ui/Alert';
-import { updateTopping, clearError } from '@/lib/redux/slices/toppingsSlice';
+import { updateTopping, clearError } from '../../lib/redux/slices/toppingsSlice';
 
 interface EditToppingFormProps {
   topping: Topping;
