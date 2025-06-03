@@ -1,10 +1,10 @@
 "use client";
-import { order } from '@/lib/api/orderApi';
-import { useUserRoles } from '@/lib/hooks/useUserRoles';
-import { Order, OrderState } from '@/lib/types/order.types';
-import { Product } from '@/lib/types/product.types';
-import { formatDate } from '@/lib/utils/date';
-import { getOrderStateColor } from '@/lib/utils/order';
+import { order } from '../../lib/api/orderApi';
+import { useUserRoles } from '../..//lib/hooks/useUserRoles';
+import { Order, OrderState } from '../..//lib/types/order.types';
+import { Product } from '../..//lib/types/product.types';
+import { formatDate } from '../..//lib/utils/date';
+import { getOrderStateColor } from '../..//lib/utils/order';
 import React, { useEffect, useState } from 'react';
 
 export default function OrdersPage() {
