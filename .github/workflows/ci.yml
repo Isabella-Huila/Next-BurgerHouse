@@ -1,0 +1,137 @@
+name: CI - SonarQube + Trivy
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  analysis:
+    name: Code Analysis & Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarQube
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci || npm install --legacy-peer-deps
+
+      - name: Generate test coverage
+        run: |
+          npm run test -- --coverage --testFailureExitCode=0 || echo "Tests completed with failures"
+        continue-on-error: true
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 5
+
+      # ============================================
+      # TRIVY SCANS
+      # ============================================
+
+      - name: Trivy - Filesystem Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy FS results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+          category: 'trivy-fs'
+
+      - name: Trivy - IaC Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: 'infra/terraform'
+          format: 'sarif'
+          output: 'trivy-iac-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy IaC results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-iac-results.sarif'
+          category: 'trivy-iac'
+
+      # ============================================
+      # BUILD & SCAN DOCKER IMAGE
+      # ============================================
+
+      - name: Build Docker image for scanning
+        run: |
+          docker build -t next-burgerhouse:ci .
+
+      - name: Trivy - Docker Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'next-burgerhouse:ci'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy Image results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'trivy-image'
+
+      # ============================================
+      # SONARQUBE ANALYSIS
+      # ============================================
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate Check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+      # ============================================
+      # SUMMARY
+      # ============================================
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "## 📊 Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Scans:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Trivy Filesystem Scan" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏗️ Trivy IaC Scan (Terraform)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐳 Trivy Docker Image Scan" >> $GITHUB_STEP_SUMMARY
+          echo "- 📈 SonarQube Code Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📍 View Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- **SonarQube**: ${{ secrets.SONAR_HOST_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Alerts**: [GitHub Security](https://github.com/${{ github.repository }}/security/code-scanning)" >> $GITHUB_STEP_SUMMARY

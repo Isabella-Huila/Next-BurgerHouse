@@ -1,0 +1,59 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/terraform/**'
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: Deploy Azure Infrastructure
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: infra/terraform
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -var="admin_password=${{ secrets.VM_ADMIN_PASSWORD }}"
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: terraform apply -auto-approve -var="admin_password=${{ secrets.VM_ADMIN_PASSWORD }}"
+
+      - name: Get Outputs
+        if: github.ref == 'refs/heads/main'
+        id: outputs
+        run: |
+          echo "public_ip=$(terraform output -raw public_ip)" >> $GITHUB_OUTPUT
+          echo "sonarqube_url=$(terraform output -raw sonarqube_url)" >> $GITHUB_OUTPUT
+
+      - name: Display Info
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "🎉 Infrastructure deployed successfully!"
+          echo "📍 SonarQube URL: ${{ steps.outputs.outputs.sonarqube_url }}"
+          echo "🔑 Login: admin / admin (change on first login)"
+          echo ""
+          echo "⚠️ IMPORTANT: Update GitHub Secret 'SONAR_HOST_URL' with:"
+          echo "${{ steps.outputs.outputs.sonarqube_url }}"

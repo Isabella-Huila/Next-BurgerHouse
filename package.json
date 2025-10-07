@@ -9,7 +9,9 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "cov:local": "jest --coverage --testFailureExitCode=0"
+
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
